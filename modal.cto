@@ -1,0 +1,71 @@
+namespace org.acme.loan
+
+participant BorrowerRequest identified by requestId {
+  o String requestId
+    o Double amountRequested default = 0.0
+  o Double amountFulfilled default = 0.0
+    o Double amountRepaid default = 0.0
+    o Double interestAmount default = 0.0
+    o String loanRequirementPurpose
+    o Integer durationOfLoanInMonths range = [1,60]
+    o Boolean isDone default = false
+    o Boolean isRepaid default = false
+    --> Borrower borrower
+}
+
+participant Borrower extends User{
+    o Double accountBalance default = 0.0
+  o Integer total default = 0
+    o Integer success default = 0
+    o Integer fail default = 0
+    o Double rewardPoints default = 0.0
+}
+  
+abstract participant User identified by userId {
+    o String userId
+  o String firstname
+    o String lastName
+    o String email
+    o String aadhar
+    o Boolean isLender default = false
+}
+  
+concept LenderDetails {
+  --> Lender lender
+    o Double amount default = 0.0
+    o Double repaid default = 0.0
+}
+
+participant Lender extends User {
+  o Double accountBalance default = 0.0
+}
+
+asset Loan identified by loanId {
+  o String loanId
+  --> BorrowerRequest borrowerRequest
+  o LenderDetails[] lenders
+  o DateTime startDate
+  o DateTime endDate
+  o Double interest
+}
+
+transaction CreditLoan {
+  --> Loan loan
+    --> BorrowerRequest borrowerRequest
+    --> Lender lender
+  o Double amount
+}
+
+transaction RepayLoan {
+    --> Loan loan
+    --> BorrowerRequest borrowerRequest
+    --> Lender lender
+  o Double amount
+}
+
+transaction RequestLoan {
+  o Double amountRequested
+  o String loanRequirementPurpose
+  o Integer durationOfLoanInMonths
+  --> Borrower borrower
+}
